@@ -1,0 +1,273 @@
+<html>
+<head>
+<title>DNS Crash Course - nicuuut.goat</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+.unnamed1 {  color: #FFFF00; background-color: #FF0000}
+td {  background-color: #FFFFFF; padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px}
+-->
+</style>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" background="/circuit.png">
+<div align="center">
+  <table width="75%" border="0" cellpadding="1">
+    <tr> 
+      <td> 
+        <h1><font face="Arial, Helvetica, sans-serif"><b>So you decided to run 
+          your own DNS Serve</b>r</font></h1>
+        <p><font face="Arial, Helvetica, sans-serif">Well, you're in the right 
+          place right now!</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">First, we need to talk about 
+          certain concepts before we start setting up our own DNS server</font></p>
+        <div align="center"> 
+          <table width="99%" border="1" cellpadding="1">
+            <tr> 
+              <td class="unnamed1"><font face="Arial, Helvetica, sans-serif"><b><font size="+2">Follow 
+                this guide at your own risk, as i will NOT be providing support 
+                for users following this guide, you've been warned.</font></b></font></td>
+            </tr>
+          </table>
+        </div>
+        <p>&nbsp;</p>
+        <h2><font face="Arial, Helvetica, sans-serif">Top Level Domains</font></h2>
+        <p><font face="Arial, Helvetica, sans-serif">Have you noticed the .goat 
+          before my name?, that&#146;s a TLD, or a top level domain, usually these 
+          are used to indicate that a website was registered on a certain country, 
+          jurisdiction or entity, such as the .co.uk on google.co.uk, or the gov 
+          on usa.gov, here on CGHMN however, since we&#146;re isolated from the 
+          real world (at least our computers are), we play by other rules.</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">Most members use the .retro 
+          TLD for their websites, while services owned and run by CGHMN themselves 
+          use the .cghmn TLD, you could also have your own like me!, but that&#146;s 
+          outside of the scope of this minisite</font></p>
+        <h2><font face="Arial, Helvetica, sans-serif">Domain Name Server</font></h2>
+        <p><font face="Arial, Helvetica, sans-serif">A domain name server or DNS 
+          for short is a computer in charge of translating ip addresses into names 
+          and viceversa, so when your computer requests for nicuuut.goat, that 
+          requests travels to a DNS server which in turn translates it to an IP 
+          address and returns it to your computer so it can reach the server you&#146;ve 
+          requested, DNS usually have two components that we need to configure, 
+          the forward lookup zone and the reverse lookup zone, let&#146;s dive 
+          into those</font></p>
+        <h3><font face="Arial, Helvetica, sans-serif">Forward Lookup Zone</font></h3>
+        <p><font face="Arial, Helvetica, sans-serif">A forward lookup zone is 
+          sort of a database that maps friendly names (like google.com) to their 
+          ip addresses (such as 192.168.1.1 for example), this zone contains different 
+          kinds of records.</font></p>
+        <div align="center"> 
+          <table width="75%" border="1" cellpadding="1">
+            <tr> 
+              <td width="16%"><font face="Arial, Helvetica, sans-serif">Record 
+                Type</font></td>
+              <td width="84%"><font face="Arial, Helvetica, sans-serif">Explanation</font></td>
+            </tr>
+            <tr> 
+              <td width="16%"><font face="Arial, Helvetica, sans-serif">A</font></td>
+              <td width="84%"><font face="Arial, Helvetica, sans-serif">This records 
+                maps into a single IPv4 address</font></td>
+            </tr>
+            <tr> 
+              <td width="16%"><font face="Arial, Helvetica, sans-serif">AAAA</font></td>
+              <td width="84%"><font face="Arial, Helvetica, sans-serif">This record 
+                maps into a single IPv6 address</font></td>
+            </tr>
+            <tr> 
+              <td width="16%"><font face="Arial, Helvetica, sans-serif">CNAME</font></td>
+              <td width="84%"><font face="Arial, Helvetica, sans-serif">It can 
+                be used as an alias, for example, www.nicuuut.goat is an alias 
+                for mitsuri.nicuuut.goat which is my web server, it&#146;s usually 
+                used when you want to use different subdomains on a single server</font></td>
+            </tr>
+            <tr> 
+              <td width="16%"><font face="Arial, Helvetica, sans-serif">MX</font></td>
+              <td width="84%"><font face="Arial, Helvetica, sans-serif">MX or 
+                Mail Exchange tells everyone that this server will manage your 
+                email, think about it as the physical address of your local post 
+                office</font></td>
+            </tr>
+            <tr> 
+              <td width="16%"><font face="Arial, Helvetica, sans-serif">MX</font></td>
+              <td width="84%"><font face="Arial, Helvetica, sans-serif">This record 
+                is used to point at your name server itself</font></td>
+            </tr>
+            <tr> 
+              <td width="16%"><font face="Arial, Helvetica, sans-serif">SOA (or 
+                Start of Authoritative)</font></td>
+              <td width="84%"><font face="Arial, Helvetica, sans-serif">This record 
+                is used to tell everyone &#147;Hey, I&#146;m in charge of this 
+                zone, &#146;kay?&#148;</font></td>
+            </tr>
+          </table>
+        </div>
+        <h3>&nbsp;</h3>
+        <h3><font face="Arial, Helvetica, sans-serif">Reverse Lookup Zone</font></h3>
+        <p><font face="Arial, Helvetica, sans-serif">On the other hand, we have 
+          the reverse lookup zone which translates IP addresses back into domains, 
+          usually we use these when we run email servers as those extensively 
+          use them to verify the sender&#146;s identity, you will also need to 
+          use this zone if you&#146;re setting up Active Directory on your domain, 
+          for all of that, we use PTRs or Pointer records which point an address 
+          to a domain name.</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">Now that we&#146;ve talked 
+          about concepts, let&#146;s get our hands dirty together!</font></p>
+        <h2><font face="Arial, Helvetica, sans-serif">Getting your hands dirty</font></h2>
+        <p><font face="Arial, Helvetica, sans-serif">First you will need a computer 
+          where you want to run your DNS server, make sure its one that runs 24/7, 
+          because the moment its down, your domains will stop being mapped and 
+          you will have to rely on remembering your ip addresses until your DNS 
+          comes back up.</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">I&#146;d also recommend using 
+          Linux as Microsoft DNS Server does not seems to play nicely with the 
+          infrastructure at CGHMN (and after all this guide is for running your 
+          own DNS server on CGHMN anyways)</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">First, you will need to install 
+          BIND or the Berkeley Internet Name Domain. what a catchy name, using 
+          your distro&#146;s package manager, we will also need bind-utils which 
+          will help us to check if whatever changes we made, are okay for BIND.</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">For Ubuntu/Debian based distros:<br>
+          <br>
+          <code>sudo apt update<br>
+          sudo apt install bind9 bind9-utils</code></font></p>
+        <p><font face="Arial, Helvetica, sans-serif">For Fedora/RHEL:<br>
+          <br>
+          <code>sudo dnf update<br>
+          sudo dnf install bind bind-utils</code></font></p>
+        <p><font face="Arial, Helvetica, sans-serif">For other distros, refer 
+          to the software repositories used by your package manager and/or distro</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">After we done that, switch 
+          working directories with <code>cd /etc/bind</code></font></p>
+        <p><font face="Arial, Helvetica, sans-serif">Once we done that, we need 
+          to create our first master zone, edit /etc/bind/named.conf.local with 
+          the following:</font></p>
+        <p><font face="Arial, Helvetica, sans-serif"><br>
+          <code>zone &quot;yourdomain.tld&quot; {<br>
+          type master;<br>
+          file &quot;/etc/bind/db.yourdomain.tld&quot;;<br>
+          };<br>
+          </code>In my case, for simplicity i&#146;ll be storing my files on /etc/bind.<code> 
+          </code> </font></p>
+        <p><font face="Arial, Helvetica, sans-serif">Replace </font><font face="Arial, Helvetica, sans-serif">&#147;yourdomain.tld&#148; 
+          wiith your domain and your custom TLD and &#147;db.yourdomain.tld&#148; 
+          will be the file where we will add our data to fill our zone.</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">You may use this file as 
+          a template if you want<br>
+          <code><br>
+          $TTL 3600<br>
+          @ IN SOA ns.yourdomain.tld. root.domain.tld. (<br>
+          1 ; Serial<br>
+          3600 ; Refresh<br>
+          3600 ; Retry<br>
+          3600 ; Expire<br>
+          3600 ) ; Negative Cache TTL<br>
+          ;</code></font></p>
+        <p><font face="Arial, Helvetica, sans-serif"><code>@ IN NS ns.yourdomain.tld.<br>
+          ns IN A 172.22.XX.XX<br>
+          srv IN A 172.22.200.102<br>
+          www IN CNAME srv<br>
+          </code></font></p>
+        <p><font face="Arial, Helvetica, sans-serif">At minimum on CGHMN to run 
+          your own TLD, you will need a SOA, NS and A records setup</font></p>
+        <p><font face="Arial, Helvetica, sans-serif"><b>ALL domain names needs 
+          to end with a dot, for example if you write dns.yourdomain.tld. this 
+          translates to dns.yourdomain.tld but if you write dns yourdomain.tld 
+          that translates to dns.yourdomain.tld.yourdomain.tld, be careful.</b></font></p>
+        <ul>
+          <li><font face="Arial, Helvetica, sans-serif">$TTL is the time in seconds 
+            on which your records may be stored on a intermediate cache</font></li>
+          <li><font face="Arial, Helvetica, sans-serif"> Refresh will be the time 
+            in seconds on which our records may be refreshed by other dns servers, 
+            in case we change something, same with retry, which will be the time 
+            in seconds on which a dns server will retry reaching ours in case 
+            it wasn&#146;t able to find a record, because we just added, it does 
+            not longer exists, etc.</font></li>
+          <li><font face="Arial, Helvetica, sans-serif"> @ replaces our domain 
+            name when necessary</font></li>
+          <li><font face="Arial, Helvetica, sans-serif"> The SOA or Start of Authoritative 
+            as we explained before, tells that this server is in charge of our 
+            records for that domain, it also contains vital data such as the nameserver, 
+            the mail of the person in charge (although here we write it as if 
+            it were a subdomain), and other times that we will explain later</font></li>
+          <li><font face="Arial, Helvetica, sans-serif"> Since this is the server 
+            with authority to manage our records, we use @ IN NS to define our 
+            nameserver record</font></li>
+          <li><font face="Arial, Helvetica, sans-serif"> Once we done that, we 
+            start adding our records, based on the types we&#146;ve explained 
+            before</font></li>
+          <li><font face="Arial, Helvetica, sans-serif"> We usually use A records 
+            for physical machines</font></li>
+          <li><font face="Arial, Helvetica, sans-serif"> CNAMEs on the other hand 
+            are usually used as subdomains or aliases for services running on 
+            a machine</font></li>
+          <li><font face="Arial, Helvetica, sans-serif"> For example we&#146;re 
+            running our physical machine on srv.yourdomain.tld, while we use www.yourdomain.tld 
+            to point as a CNAME of srv so we can offer a webpage under www.yourdomain.tld</font></li>
+          <li><font face="Arial, Helvetica, sans-serif"> The serial is like the 
+            commit IDs you see on Github, it can tell when a change has or has 
+            not been done, BIND uses serials to acknowledge when a change has 
+            been made on a zone, serials are arbitrary so you can use any notation 
+            you want, most sysadmins usually use YYYYMMDDNN where YYYY is the 
+            year, MM the month, DD the day, and NN a version number, you may stick 
+            with that one or come up with your own</font></li>
+        </ul>
+        <p><font face="Arial, Helvetica, sans-serif">Once you&#146;ve done creating 
+          and configuring your forward lookup zone, we need to configure our reverse 
+          lookup zone.</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">On the same named.conf.local 
+          file, you should add the following</font></p>
+        <p><font face="Arial, Helvetica, sans-serif"><br>
+          <code>zone &quot;0.23.172.in-addr.arpa&quot; {<br>
+          type master;<br>
+          file &quot;/etc/bind/0.0.172.in-addr.arpa&quot;<br>
+          };</code><br>
+          </font></p>
+        <p><font face="Arial, Helvetica, sans-serif">For reverse lookup zones 
+          we&#146;re going to call our file in reverse of our subnet, for example, 
+          if your server is hosted on 192.168.1.121, then your file should be 
+          called 1.168.192.in-addr.arpa</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">Inside that file, you may 
+          use this as a template</font></p>
+        <blockquote> 
+          <p><font face="Arial, Helvetica, sans-serif"><br>
+            ;<br>
+            <code>; BIND data file for 0.23.172.in-addr.arpa<br>
+            ;<br>
+            $TTL 3600<br>
+            @ IN SOA yourdomain.tld. root.yourdomain.tld. (<br>
+            2025121201 ; Serial<br>
+            3600 ; Refresh<br>
+            86400 ; Retry<br>
+            3600 ; Expire<br>
+            3600 ) ; Minimum TTL<br>
+            ;<br>
+            @ IN NS ns.yourdomain.tld.<br>
+            53 IN PTR mail.yourdomain.tld.</code></font></p>
+        </blockquote>
+        <p><font face="Arial, Helvetica, sans-serif">On reverse lookup zones, 
+          we first need to indicate the machine we want to reach, in this case, 
+          53, so we add that as the record, then we use IN and PTR or a pointer 
+          record, meaning we&#146;re pointing 172.23.0.53 back to mail.yourdomain.tld.</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">Once you are done with your 
+          changes, you can verify them using <code>named-checkconf</code> and 
+          passing your <code>named.conf.loca</code>l like this, <code>named-checkconf 
+          named.conf.local</code>, if running this returns nothing, then your 
+          configuration is great!</font></p>
+        <p><font face="Arial, Helvetica, sans-serif">For checking your zone use 
+          <code>named-checkzone zonename</code> and passing your zones as a parameter, 
+          like this:<code> named-checkzone zonename db.yourdomain.tld</code>, 
+          this should return your zone serial and an OK like this:<br>
+          </font></p>
+        <p><font face="Arial, Helvetica, sans-serif"><code>zone zonename/IN: loaded 
+          serial 2025103003<br>
+          OK</code><br>
+          </font></p>
+        <p><font face="Arial, Helvetica, sans-serif">Once that&#146;s done, run 
+          systemctl restart bind9 as root, and done!, now you should be able to 
+          configure your webserver and services to point to your domain.</font></p>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>
