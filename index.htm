@@ -1,17 +1,177 @@
+<!DOCTYPE html>
 <html>
 <head>
-<title>nicuuut dot cl - legacy zone</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>nicuuut dot cl legacy zone</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+body {
+    background-color: #000000;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #FFFFFF;
+}
+.highlight td {
+    border: 1px solid #42dca3;
+}
+</style>
 </head>
-<frameset cols="140,*" frameborder="NO" border="0" framespacing="0" rows="*"> 
-  <frame name="leftFrame" scrolling="NO" noresize src="/Templates/left.htm">
-  <frameset rows="110,*" frameborder="NO" border="0" framespacing="0" cols="*"> 
-    <frame name="topFrame" scrolling="NO" noresize src="/Templates/header.htm" >
-    <frame name="mainFrame" src="/content.htm">
-  </frameset>
-</frameset>
-<noframes>
+
 <body bgcolor="#FFFFFF" text="#000000">
+<div align="center">
+  <table width="612" border="0" height="402">
+    <tr>
+      <td height="21" valign="top" colspan="5">
+        <div align="right" id="today"></div>
+      </td>
+    </tr>
+    <tr>
+      <td height="77" valign="top" colspan="5"><img src="banner_header.png" width="608" height="75"></td>
+    </tr>
+    <tr>
+      <td height="10" valign="top" colspan="2" align="center"><img src="res/empty.png" width="163" height="23"></td>
+      <td width="218" valign="top">
+        <div align="center"></div>
+      </td>
+      <td valign="top" colspan="2">
+        <img src="res/empty.png">
+      </td>
+    </tr>
+    <tr>
+      <td height="240" valign="top" colspan="4" id="rotator"></td>
+      <td width="148" valign="top">
+        <p><img src="about.png" width="146" height="238"></p>
+      </td>
+    </tr>
+    <tr valign="middle" bordercolor="#42DCA3" class="highlight">
+      <td height="40" valign="middle" align="center" width="131" bgcolor="#42dca3" class="highlight">
+        <div align="left"><font color="#42DCA3"><b><font color="#000000">Breaking News:</font></b></font></div>
+      </td>
+      <td colspan="4" valign="middle"  align="left" id="breaking-news"></td>
+    </tr>
+    <tr>
+      <td height="3"></td>
+      <td width="47"></td>
+      <td></td>
+      <td width="45"></td>
+      <td></td>
+    </tr>
+  </table>
+  <p>This website is optimized for screen sizes of 800 by 600 at 256 colours or higher.<br>
+  <br>
+    <img src="41277.gif" width="88" height="31"> <img src="netscape_logo.gif" width="88" height="31"></p>
+  <p>&copy; 2001 - nicuuut.goat</p>
+</div>
+
+<script type="text/javascript">
+var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+              'August', 'September', 'October', 'November', 'December'];
+
+// Equivalent of date('l, F j, Y')
+function formatToday() {
+  var d = new Date();
+  return DAYS[d.getDay()] + ', ' + MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+
+function trim(s) {
+  return s.replace(/^\s+|\s+$/g, '');
+}
+
+// Safe text insertion (same job as htmlspecialchars); textContent doesn't exist in old IE
+function setText(el, text) {
+  while (el.firstChild) {
+    el.removeChild(el.firstChild);
+  }
+  el.appendChild(document.createTextNode(text));
+}
+
+function createRequest() {
+  if (window.XMLHttpRequest) {
+    return new XMLHttpRequest();
+  }
+  if (window.ActiveXObject) {
+    try { return new ActiveXObject('Microsoft.XMLHTTP'); } catch (e) {}
+  }
+  return null;
+}
+
+// Loads a text file; calls callback(text) on success or callback(null) on failure.
+// A timestamp is added to the URL because old IE caches XHR requests aggressively.
+function loadText(url, callback) {
+  var xhr = createRequest();
+  if (!xhr) {
+    callback(null);
+    return;
+  }
+  var sep = (url.indexOf('?') === -1) ? '?' : '&';
+  xhr.open('GET', url + sep + 't=' + new Date().getTime(), true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) {
+      return;
+    }
+    if ((xhr.status >= 200 && xhr.status < 300) || (xhr.status === 0 && xhr.responseText)) {
+      callback(xhr.responseText);
+    } else {
+      callback(null);
+    }
+  };
+  try {
+    xhr.send(null);
+  } catch (e) {
+    callback(null);
+  }
+}
+
+// Equivalent of chooseContent(): random non-empty, non-comment line, inserted as raw HTML
+function chooseContent(url, callback) {
+  loadText(url, function (text) {
+    if (text === null) {
+      callback('<p>Missing rotator file.</p>');
+      return;
+    }
+    if (trim(text) === '') {
+      callback('<p>No rotator content found.</p>');
+      return;
+    }
+
+    var lines = text.replace(/\r\n?/g, '\n').split('\n');
+    var valid = [];
+    for (var i = 0; i < lines.length; i++) {
+      var line = trim(lines[i]);
+      if (line === '' || line.charAt(0) === '#') {
+        continue;
+      }
+      valid.push(line);
+    }
+
+    if (valid.length === 0) {
+      callback('<p>No valid rotator entries found.</p>');
+      return;
+    }
+
+    callback(valid[Math.floor(Math.random() * valid.length)]);
+  });
+}
+
+// First line of brknews.txt
+function getBreakingNews(url, callback) {
+  loadText(url, function (text) {
+    if (text === null) {
+      callback('');
+      return;
+    }
+    callback(trim(text.replace(/\r\n?/g, '\n').split('\n')[0]));
+  });
+}
+
+setText(document.getElementById('today'), formatToday());
+
+chooseContent('text/rotate.txt', function (html) {
+  document.getElementById('rotator').innerHTML = html;
+});
+
+getBreakingNews('text/brknews.txt', function (news) {
+  setText(document.getElementById('breaking-news'), news);
+});
+</script>
 </body>
-</noframes> 
 </html>

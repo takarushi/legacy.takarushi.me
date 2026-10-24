@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>nicuuut dot cl legacy zone</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<style type="text/css">
+body {
+    background-color: #000000;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #FFFFFF;
+}
+.highlight td {
+    border: 1px solid #42dca3;
+}
+hr {
+    border: 5px solid #42dca3;
+    height: 2px;
+    width: 75%;
+    background-color: #42dca3;
+}
+</style>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<div align="center">
+  <table width="612" border="0" height="200">
+    <tr>
+      <td height="21" valign="top" colspan="5">
+        <div align="right" id="today"></div>
+      </td>
+    </tr>
+    <tr>
+      <td height="60" valign="top" colspan="6"><img src="res/alt_ban.png" width="608" height="75"></td>
+    </tr>
+    <tr>
+      <td height="5" valign="top" align="left" colspan="6"><img src="res/404_title.png" width="450" height="45"></td>
+    </tr>
+    <tr>
+        <td height="150" valign="top" align="left"colspan="6">
+            <p>The page you tried wasn't found. You may have typed the address incorrectly or used an outdated link.</p>
+            <p>You can go back to the homepage by clicking the button below.</p>
+            <div align="center">
+                <a href="index.html"><img src="res/back_up.png" width="145" height="37" border="0"></a>
+            </div>
+        </td>
+    </tr>
+  </table>
+  <hr>
+  <p>This website is optimized for screen sizes of 800 by 600 at 256 colours or higher.<br>
+  <br>
+    <img src="41277.gif" width="88" height="31"> <img src="netscape_logo.gif" width="88" height="31"></p>
+  <p>&copy; 2001 - (C) nicuuut</p>
+</div>
+
+<script type="text/javascript">
+var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+              'August', 'September', 'October', 'November', 'December'];
+
+// Equivalent of date('l, F j, Y')
+function formatToday() {
+  var d = new Date();
+  return DAYS[d.getDay()] + ', ' + MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+
+function trim(s) {
+  return s.replace(/^\s+|\s+$/g, '');
+}
+
+// Safe text insertion (same job as htmlspecialchars); textContent doesn't exist in old IE
+function setText(el, text) {
+  while (el.firstChild) {
+    el.removeChild(el.firstChild);
+  }
+  el.appendChild(document.createTextNode(text));
+}
+
+function createRequest() {
+  if (window.XMLHttpRequest) {
+    return new XMLHttpRequest();
+  }
+  if (window.ActiveXObject) {
+    try { return new ActiveXObject('Microsoft.XMLHTTP'); } catch (e) {}
+  }
+  return null;
+}
+
+// Loads a text file; calls callback(text) on success or callback(null) on failure.
+// A timestamp is added to the URL because old IE caches XHR requests aggressively.
+function loadText(url, callback) {
+  var xhr = createRequest();
+  if (!xhr) {
+    callback(null);
+    return;
+  }
+  var sep = (url.indexOf('?') === -1) ? '?' : '&';
+  xhr.open('GET', url + sep + 't=' + new Date().getTime(), true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) {
+      return;
+    }
+    if ((xhr.status >= 200 && xhr.status < 300) || (xhr.status === 0 && xhr.responseText)) {
+      callback(xhr.responseText);
+    } else {
+      callback(null);
+    }
+  };
+  try {
+    xhr.send(null);
+  } catch (e) {
+    callback(null);
+  }
+}
+
+
+
+
+setText(document.getElementById('today'), formatToday());
+
+</script>
+</body>
+</html>
